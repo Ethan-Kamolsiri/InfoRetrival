@@ -12,14 +12,14 @@ static class wordPMI implements Comparable<wordPMI> {
         this.word = word;
         this.probability = probability;
     }
-
     @Override
     public int compareTo(wordPMI o) {
         return Double.compare(o.probability, probability);
     }
     @Override
     public String toString() {
-        return word + "\t" + probability;
+        String[] s = word.split(" ");
+        return "Word: " + " (" + s[0] + "," + s[1] + ") " + "\t" + "PMI:" + probability;
     }
 }
 
@@ -37,14 +37,13 @@ public static void main(String[] args) throws IOException {
     System.out.println("Insert word: ");
     String lookupWord = kb.nextLine().toLowerCase();
 
-    PriorityQueue pmi = PMILookup(lookupWord);
+    PriorityQueue<wordPMI> pmi = PMILookup(lookupWord);
 
     while (!pmi.isEmpty()) {
         wordPMI output;
         output = (wordPMI) pmi.poll();
         System.out.println(output.toString());
-        int outputcount = conCatWord.get(output.word);
-        System.out.println(outputcount);
+
     }
     kb.close();
 }
@@ -68,7 +67,7 @@ public static void read(String directory) throws IOException {
                     conCatWord.put(combinedWord, conCatWord.getOrDefault(combinedWord, 0) + 1);
 
                     firstwordCount.put(words[j], firstwordCount.getOrDefault(words[j], 0) + 1);
-                    secondwordCount.put(words[j], secondwordCount.getOrDefault(words[j], 0) + 1);
+                    secondwordCount.put(words[j+1], secondwordCount.getOrDefault(words[j+1], 0) + 1);
                 }
             }
         }
@@ -76,10 +75,10 @@ public static void read(String directory) throws IOException {
     }
 }
 
-public static PriorityQueue PMILookup(String lookupWord) {
+public static PriorityQueue<wordPMI> PMILookup(String lookupWord) {
     PriorityQueue<wordPMI> top5values = new PriorityQueue<wordPMI>();
     int n = WC(conCatWord);
-    System.out.println(n);
+    System.out.println("Total number of Concat words: " + n);
     for (String word : conCatWord.keySet()) {
         String[] wordsplit = word.split("\\s+");
         if (wordsplit[0].equals(lookupWord)) {
@@ -112,9 +111,9 @@ public static int getCol(String y){
 return secondwordCount.getOrDefault(y, 0);
 }
 
-public static void addtoQ(PriorityQueue<wordPMI> x, wordPMI wordPMI) {
-    x.add(wordPMI);
-    if (x.size() > 5) {
-        x.poll();
+public static void addtoQ(PriorityQueue<wordPMI> top5, wordPMI wordPMI) {
+    top5.add(wordPMI);
+    if (top5.size() > 5) {
+        top5.poll();
     }
 }
