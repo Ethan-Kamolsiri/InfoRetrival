@@ -30,7 +30,7 @@ class Tree_Initialize{
         int numFiles = 0; //25
         int numLines = 0; //500
         BufferedReader br = new BufferedReader(new FileReader(f));
-        Path path = Paths.get();
+        Path path = Paths.get(f);
         try {
             // This creates the folder and any missing parents
             Files.createDirectories(path);
