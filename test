@@ -1,0 +1,82 @@
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+
+
+class Main {
+    public static Path WetDir;
+    public static Path ProjectDir;
+
+    public static void main(String[] args) throws Exception {
+
+
+    }
+
+    public static void readDirectory(String wetDir) throws Exception {
+        File folder = new File(wetDir);
+        File mainDirectory = folder.getParentFile();
+        File outputFolder = new File(mainDirectory, "cleaned_output");
+        outputFolder.mkdirs();
+
+        File[] files = folder.listFiles();
+        if (files == null) return;
+
+        for (File f : files) {      // Create a new file in the output folder for each input file
+            File cleanedFile = new File(outputFolder, "cleaned_" + f.getName());
+            cleanedFile.createNewFile();
+            Pass_1_WET(f.getName(), cleanedFile);
+        }
+
+        for (File f : outputFolder.listFiles()) {
+
+        }
+
+
+    }
+
+    public static void Pass_1_WET(String filename, File cleanedFile) throws Exception {
+        try (BufferedReader br = new BufferedReader(new FileReader(filename));
+             BufferedWriter bw = new BufferedWriter(new FileWriter(cleanedFile))) {
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] tokens = line.replaceAll("[^a-zA-Z\\s]", "").split("\\s+");
+
+                for (String token : tokens) {
+                    if (!token.isEmpty()) {
+                        bw.write(token);
+                        bw.newLine();
+                    }
+                }
+            }
+        }
+    }
+
+    public static void Pass_2_WET(String filename, File tokenized ) throws Exception {
+        HashMap<String,Integer> map = new HashMap<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(filename));
+        BufferedWriter bw = new BufferedWriter(new FileWriter(tokenized))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] tokens = line.split("\\s+");
+                for (String token : tokens) {
+                    map.put(token, map.getOrDefault(token, 0) + 1);
+                }
+            }
+
+            for (String key : map.keySet()) {
+                bw.write(key + "\t" + map.get(key) + "\n");
+            }
+        }
+
+    }
+}
+
+
+
+
+
+
+
