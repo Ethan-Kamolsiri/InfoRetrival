@@ -1,0 +1,95 @@
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+
+class Main {
+    public static Path WetDir;
+    public static Path ProjectDir;
+
+    public static void main(String[] args) throws Exception {
+        String wetfileDirectory = args[0];
+        readDirectory(wetfileDirectory);
+
+    }
+
+    public static void readDirectory(String wetDir) throws Exception {
+        File folder = new File(wetDir);
+        
+        File mainDirectory = folder.getParentFile();
+        File outputFolder = new File(mainDirectory, "cleaned_output");
+        File output2Folder = new File(mainDirectory, "tokenized_output");
+        outputFolder.mkdir();
+        output2Folder.mkdir();
+
+        File[] files = folder.listFiles();
+        if (files == null)
+            return;
+
+        for (File f : files) { // Create a new file in the output folder for each input file
+            if (f.isDirectory()) {
+                continue;
+            }
+            try {
+                File cleanedFile = new File(outputFolder, f.getName());
+                Pass_1_WET(f.getAbsolutePath(), cleanedFile.getAbsolutePath());
+                System.out.println("Successfully processed: " + f.getName());
+            } catch (Exception e) {
+                System.err.println("Error processing " + f.getName() + ": " + e.getMessage());
+            }
+        }
+        File[] folder2 = new File(outputFolder.getAbsolutePath()).listFiles();
+
+        for (File f : folder2) { // Create a new file in the output folder for each input file
+            if (f.isDirectory()) {
+                continue;
+            }
+            try {
+                File tokenizedFile = new File(output2Folder, f.getName());
+                Pass_2_WET(f.getAbsolutePath(), tokenizedFile.getAbsolutePath());
+                System.out.println("Successfully processed: " + f.getName());
+            } catch (Exception e) {
+                System.err.println("Error processing " + f.getName() + ": " + e.getMessage());
+            }
+        }
+
+    }
+
+    public static void Pass_1_WET(String filename, String cleanedFile) throws Exception {
+        try (BufferedReader br = new BufferedReader(new FileReader(filename));
+                BufferedWriter bw = new BufferedWriter(new FileWriter(cleanedFile))) {
+            bw.write("Opened\n");
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] tokens = line.replaceAll("[^a-zA-Z\\s]", "").split("\\s+");
+
+                for (String token : tokens) {
+                    if (token.length() > 3 && token.length() <= 15 && !token.isEmpty()) {
+                        bw.write(token.toLowerCase());
+                        bw.newLine();
+                    }
+                }
+            }
+        }
+    }
+
+    public static void Pass_2_WET(String filename, String tokenized) throws Exception {
+        HashMap<String, Integer> map = new HashMap<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(filename));
+                BufferedWriter bw = new BufferedWriter(new FileWriter(tokenized))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                map.put(line, map.getOrDefault(line, 0) + 1);
+            }
+
+            for (String key : map.keySet()) {
+                if (map.get(key) > 20) {
+                   bw.write(key + "\t" + map.get(key) + "\n"); 
+                }
+                
+            }
+        }
+
+    }
+}
