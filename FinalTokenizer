@@ -80,9 +80,14 @@ class Main {
                 BufferedWriter bw = new BufferedWriter(new FileWriter(tokenized))) {
             String line;
             while ((line = br.readLine()) != null) {
+                if(line.endsWith("s")){
+                    line = line.substring(0, line.length() - 1);
+                }else if(line.endsWith("ed") || line.endsWith("er") || line.endsWith("es") ||line.endsWith("ly")){
+                    line = line.substring(0, line.length() - 2);
+                }else if(line.endsWith("est") || line.endsWith("ing")){
+                    line = line.substring(0, line.length() - 3);
                 map.put(line, map.getOrDefault(line, 0) + 1);
             }
-
             for (String key : map.keySet()) {
                 if (map.get(key) > 20) {
                    bw.write(key + "\t" + map.get(key) + "\n"); 
